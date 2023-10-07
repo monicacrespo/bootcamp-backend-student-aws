@@ -1,0 +1,6 @@
+dist
+node_modules
+.env
+mongo-data
+../manual-rental-store-api.zip
+../automated-rental-store-api.zip
