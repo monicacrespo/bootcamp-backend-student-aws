@@ -12,19 +12,33 @@ The aim of this repository is to deploy to AWS the Node JS Api rest backend appl
 
 To do the deployment it will be used "AWS Elastic Beanstalk" that is an AWS-managed service for web applications. Elastic Beanstalk is a pre-configured EC2 server that can directly take up your application code and environment configurations and use it to automatically provision and deploy the required resources within AWS to run the web application. Unlike EC2 which is Infrastructure as a service, Elastic Beanstalk is a Platform As A Service (PAAS) as it allows users to directly use a pre-configured server for their application. You can deploy applications without ever having to use elastic beanstalk but that would mean having to choose the appropriate service from the vast array of services offered by  AWS, manually provisioning these AWS resources. Elastic Beanstalk abstracts the underlying configuration work for you.
 
-
  ![BeanstalkFlowApp](readme-resources/aws-beanstalk.jpg)
 
 There are several ways to deploy the Node JS Api code into AWS EC2. I’ll cover two main methods:
 * manual deployment to AWS Elastic Beanstalk (AWS EC2) with mock data and pulling data from MongoDB, and
 * automatic deployment to AWS EC2 using Docker containers and CICD.
 
+There are environment variables and the main ones are the following:
+ * API_MOCK = TRUE 
+   * The api consumes mocked data. More details in `back\src\dals\mock-data.ts` file. 
+   * The images of the listings/houses are stored localy under back\public folder. Make sure the listing's url in `back\src\dals\mock-data.ts` has the forward slash, e.g. `listing_url: '/02-detalle-casa.jpg`. 
+ * API_MOCK = FALSE 
+   * The data is stored in MongoDB database. 
+
+  * S3_SIGNED_URL = TRUE 
+    * The images of the listings are stored in S3 and signed. More information in `listingAndReviews.mappers` file.
+    * Make sure the listing's url in `back\src\dals\mock-data.ts` or in MongoDB has NOT the forward slash, e.g. `listing_url: '02-detalle-casa.jpg`. 
+  
+  * S3_SIGNED_URL = FALSE
+    * The images are not stored in S3 and they are not signed either. 
+
+
 The uses cases of this app are the following:
 * Rental web api using mock data and local images of the listings. 
   - API_MOCK = true
   - S3_SIGNED_URL = false
 
-* Rental web api using mock data and images of the listings stored in S3 and signed. Make sure 
+* Rental web api using mock data and images of the listings stored in S3 and signed. 
   - API_MOCK = true
   - S3_SIGNED_URL = true
 
@@ -38,9 +52,6 @@ The uses cases of this app are the following:
   - MONGODB_URI = "yourmongodbUri"
   - S3_SIGNED_URL = true
 
-Make sure when `API_MOCK = true` the listing's url in `back\src\dals\mock-data.ts` has the forward slash, e.g. `listing_url: '/02-detalle-casa.jpg`. 
-
-Make sure when `S3_SIGNED_URL = true` the listing's url in `back\src\dals\mock-data.ts` or in MongoDB has NOT the forward slash, e.g. `listing_url: '02-detalle-casa.jpg`. 
 
 <a name="prerequisites"></a>
 ## 2. Prerequisites
@@ -61,15 +72,17 @@ These are the steps for deploying manually the rental application to [AWS Elasti
    
    * Choose the "Managed platform" and select "Node.js". You can leave the other settings at their default values.
 
-   ![NodeJsEnvPlatform](readme-resources/AWS_Beanstalk_Env_Platform.JPG)
+     ![NodeJsEnvPlatform](readme-resources/AWS_Beanstalk_Env_Platform.JPG)
    
-   * Upload your Node.js Application: Click “Upload your code”, and upload your Node.js application in a ZIP file. Please see how to create it in [How to create the production bundle of the app](readme-resources/README.md). 
-     Add the version label, e.g. `v1.0.0`
-    ![NodeJsEnvCode](readme-resources/AWS_Beanstalk_Env_Code.JPG)
+   * Upload your Node.js Application. Click “Upload your code”, and 
+     * Add the version label, e.g. `v1.0.0`
+     * Upload your Node.js application in a ZIP file. Please see how to create it in [How to create the production bundle of the app](readme-resources/README.md). 
+     
+     ![NodeJsEnvCode](readme-resources/AWS_Beanstalk_Env_Code.JPG)
     
-   * Configuration Presets: Choose "Single instance (free tier eligible)"
+   * Configuration Presets: Choose "Single instance (free tier eligible)".
 
-   * Add configuration environment variables
+   * Add the following configuration environment variables:
       - API_MOCK = false
       - NODE_ENV = development
       - STATIC_FILES_PATH = "./public"
@@ -119,22 +132,23 @@ Here’s a step-by-step guide of how to deploy automatically an app using docker
    
    ![DockerPlatform](readme-resources/DockerPlatform.JPG)
    
-   * Upload your Node.js Application: Click “Upload your code”, and upload your Node.js application in a ZIP file. 
-     In dockerfile make sure to use PORT=80 like it's declared in EC2 > Security Groups > Inbound rules
-    
-      ![UploadCode](readme-resources/DockerUploadCode.JPG)
-
-       Create a ZIP file with the following content:     
+   * Upload your Node.js Application: 
+      * First create a ZIP file with the following content of your Node.js application:     
       
-      ```      
-      |- back/      
-      |- .dockerignore
-      |- Dockerfile 
-      ```
+        ```      
+        |- back/      
+        |- .dockerignore
+        |- Dockerfile 
+        ```
+        In dockerfile make sure to use PORT=80 like it's declared in EC2 > Security Groups > Inbound rules.
 
-   * Configuration Presets: Choose "Single instance (free tier eligible)"
+      * And then, click “Upload your code”, and upload the ZIP previously created.     
+    
+        ![UploadCode](readme-resources/DockerUploadCode.JPG)
 
-   * Add configuration environment variables     
+   * Configuration Presets: Choose "Single instance (free tier eligible)".
+
+   * Add the following configuration environment variables: 
       - NODE_ENV = development
       - AUTH_SECRET = "yourauthsecret"
       - MONGODB_URI = "yourmongodbUri"

@@ -16,20 +16,20 @@
     ```
 2. Make sure you provide valid env variables with `.env` file like public folder path, port,...
 
-```
-NODE_ENV=development
-PORT=3001
-STATIC_FILES_PATH=../public
-CORS_ORIGIN=*
-CORS_METHODS=GET,POST,PUT,DELETE
-API_MOCK=false
-MONGODB_URI=yourmongodbUri
-AUTH_SECRET=yourauthsecret
-AWS_ACCESS_KEY_ID=yourawsaccesskeyid
-AWS_SECRET_ACCESS_KEY=yourawssecretaccesskey
-AWS_S3_BUCKET=yours3bucket
-S3_SIGNED_URL=false
-```
+  ```
+  NODE_ENV=development
+  PORT=3001
+  STATIC_FILES_PATH=../public
+  CORS_ORIGIN=*
+  CORS_METHODS=GET,POST,PUT,DELETE
+  API_MOCK=false
+  MONGODB_URI=yourmongodbUri
+  AUTH_SECRET=yourauthsecret
+  AWS_ACCESS_KEY_ID=yourawsaccesskeyid
+  AWS_SECRET_ACCESS_KEY=yourawssecretaccesskey
+  AWS_S3_BUCKET=yours3bucket
+  S3_SIGNED_URL=true
+  ```
 
 3. Build it: `npm run build`. This will create a `dist` folder with the production version of the rest api rentals app. 
 
@@ -195,26 +195,30 @@ Those libraries are used as follows:
     return await getSignedUrl(s3Client, command, { expiresIn });
   };
 
-  // Review mapping from db to Api
   export const mapListingAndReviewsFromModelToApiAsync = async (
-    listingAndReviews: model.ListingAndReviews
-    ): Promise<apiModel.ListingAndReviews> => {
-      const listing_url = await mapPicture(listingAndReviews.listing_url);
-      return {
-        id: listingAndReviews._id,
-        listing_url,
-        description: listingAndReviews.description,
-        country: listingAndReviews.address.country,
-        bedrooms: listingAndReviews.bedrooms,
-        beds: listingAndReviews.beds,
-        bathrooms: listingAndReviews.bathrooms,
-        street: listingAndReviews.address.street,
-        city: listingAndReviews.address.market,
-        // Sorting the reviews by latest date
-        // TypeScript only allows us to do arithmetic operations with values of type any, number, bigint or enum.
-        // The getTime method returns a number
-        reviews: listingAndReviews.reviews.sort(function(a, b){ return b.date.getTime() - a.date.getTime() }).slice(0,5)  
-      }
+  listingAndReviews: model.ListingAndReviews
+  ): Promise<apiModel.ListingAndReviews> => {
+    let listing_url;
+    if (envConstants.isS3SignedUrl) {
+      listing_url = await mapPicture(listingAndReviews.listing_url);
+    } else {
+      listing_url=listingAndReviews.listing_url;
+    }
+    return {
+      id: listingAndReviews._id,
+      listing_url,
+      description: listingAndReviews.description,
+      country: listingAndReviews.address.country,
+      bedrooms: listingAndReviews.bedrooms,
+      beds: listingAndReviews.beds,
+      bathrooms: listingAndReviews.bathrooms,
+      street: listingAndReviews.address.street,
+      city: listingAndReviews.address.market,
+      // Sorting the reviews by latest date
+      // TypeScript only allows us to do arithmetic operations with values of type any, number, bigint or enum.
+      // The getTime method returns a number
+      reviews: listingAndReviews.reviews.sort(function(a, b){ return b.date.getTime() - a.date.getTime() }).slice(0,5)  
+    }
   };
   ```
   You can see another example of presigned url [here](https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/s3-example-presigned-urls.html).
