@@ -3,7 +3,7 @@ name: AWS Continuos Deployment Workflow
 on:
   push:
     branches:
-      - main
+      - disable
 
 env:
   APP_VERSION_LABEL: ${{secrets.AWS_EB_APP_NAME}}-${GITHUB_SHA}-${GITHUB_RUN_ATTEMPT}
