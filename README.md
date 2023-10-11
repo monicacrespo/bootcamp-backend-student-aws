@@ -313,7 +313,7 @@ A Dockerfile is a text document that contains all the commands to assemble an im
 
 * `EXPOSE 80`: The EXPOSE instruction does not actually publish the port. It functions as a type of documentation between the person who builds the image and the person who runs the container, about which ports are intended to be published.
 
-* `CMD node/index` : RUN vs CMD: CMD doesn't run node server when we build the image, to run it when run the container.
+* `CMD node/index` : RUN vs CMD: CMD doesn't run node server when we build the image, to run it when run the container. More information about CMD and ENTRYPOINT [here](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
 
 ### .dockerignore file
 `./.dockerignore` file is used to avoid unnecessary files:
