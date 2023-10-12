@@ -12,6 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Install
+        working-directory: ./back
         run: npm ci
       - name: Tests
+        working-directory: ./back
         run: npm test
