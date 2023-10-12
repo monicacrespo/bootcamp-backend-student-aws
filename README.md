@@ -196,7 +196,7 @@ Here’s a step-by-step guide of how to deploy automatically an app using docker
 
 	 ![GithubKeys](readme-resources/GitHubWorkFlow.JPG)
    
-   And third, create the github action: `./.github/workflows/cd.yml` file
+   And third, the github action: `./.github/workflows/cd.yml` file
     ```
     name: AWS Continuos Deployment Workflow 
 

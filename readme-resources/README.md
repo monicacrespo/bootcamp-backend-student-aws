@@ -5,6 +5,7 @@
 4. [How to create and populate a MongoDB database](#mongodb)
 5. [How to deploy manually an app with MongoDB data to Heroku](#heroku-manual-mongo)
 6. [How to deploy automatically an app with MongoDB data to Heroku](#heroku-automated-mongo)
+7. [How to configure Continuos Integration and run tests](ci-tests)
 
 <a name="prod-bundle"></a>
 ## 1. How to create the production bundle of the app
@@ -381,3 +382,56 @@ cd:
 GitHub CD Workflow
 
 ![DeployImageToHeroku](GitHubActionDeployImageToHeroku.JPG)
+
+
+<a name="ci-pipeline"></a>
+## 7. How to configure Continuos Integration and run tests
+
+Continuous Integration is the process of automating the integration of multiple contributors' code changes into a single software project. It's a key DevOps best practice that enables developers to quickly merge code changes into a central repository from which builds and tests can be executed.
+
+GitHub Actions brings continuous integration (CI) directly to the GitHub flow with templates built by developers for developers. You can also create your own custom CI workflows, and your own continuous deployment (CD) workflows.
+
+GitHub Actions allows you to automate your build, test, and deployment pipeline. You can create workflows that build and test every pull request to your repository, or deploy merged pull requests to production.
+
+We will configure Github actions to run all tests in this back-end app.
+
+### What is workflow in GitHub?
+A workflow is a configurable automated process that will run one or more jobs. Workflows are defined by a YAML file checked in to your repository and will run when triggered by an event in your repository, or they can be triggered manually, or at a defined schedule.
+
+For example, you can run a workflow to automatically run your tests whenever a pull request is opened or reopened or when the head branch of the pull request is updated, or when you push your changes in your repository.
+
+Github action: `./.github/workflows/ci.yml` file
+```
+name: CI workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install
+        working-directory: ./back
+        run: npm ci
+      - name: Tests
+        working-directory: ./back
+        run: npm test
+```
+
+Pushing changes on the main branch will trigger the above workflow.
+
+### Viewing your workflow results
+1. On GitHub.com, navigate to the main page of the repository.
+2. Under your repository name, click  Actions.
+3. In the left sidebar, click the workflow you want to see `CI workflow`.
+  ![CIGithubActionWorkflow](CIGithubActionWorkflow0.JPG)
+4. From the list of workflow runs, click the name of the run you want to see `Added ci yaml file`.
+5. Under Jobs , click the `ci` job.
+  ![CIGithubActionWorkflow](CIGithubActionWorkflow1.JPG)
+6. The log shows you how each of the steps was processed. Expand any of the steps to view its details.
+  ![CIGithubActionWorkflow](CIGithubActionWorkflow2.JPG)
