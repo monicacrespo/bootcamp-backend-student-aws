@@ -8,3 +8,6 @@ back/.gitignore
 back/create-dev-env.sh
 back/docker-compose.yml
 production-bundle
+readme-resources
+README.md
+**/.git
